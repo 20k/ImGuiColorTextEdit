@@ -496,7 +496,7 @@ void TextEditor::HandleKeyboardInputs()
 			MoveEnd(shift);
 		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Delete)))
 			Delete();
-		else if (!IsReadOnly() && !ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
+		else if (!IsReadOnly() && !ctrl && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Backspace)))
 			BackSpace();
 		else if (!ctrl && !shift && !alt && ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Insert)))
 			mOverwrite ^= true;
@@ -625,14 +625,14 @@ void TextEditor::Render()
 		color.w *= ImGui::GetStyle().Alpha;
 		mPalette[i] = ImGui::ColorConvertFloat4ToU32(color);
 	}
-	
+
 	static std::string buffer;
 	assert(buffer.empty());
-	
+
 	auto contentSize = ImGui::GetWindowContentRegionMax();
 	auto drawList = ImGui::GetWindowDrawList();
 	float longest(mTextStart);
-	
+
 	if (mScrollToTop)
 	{
 		mScrollToTop = false;
@@ -720,7 +720,7 @@ void TextEditor::Render()
 
 			// Draw line number (right aligned)
 			snprintf(buf, 16, "%d  ", lineNo + 1);
-			
+
 			auto lineNoWidth = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf, nullptr, nullptr).x;
 			drawList->AddText(ImVec2(lineStartScreenPos.x + mTextStart - lineNoWidth, lineStartScreenPos.y), mPalette[(int)PaletteIndex::LineNumber], buf);
 
@@ -869,7 +869,7 @@ void TextEditor::SetText(const std::string & aText)
 			mLines.back().emplace_back(Glyph(chr, PaletteIndex::Default));
 		}
 	}
-	
+
 	mTextChanged = true;
 	mScrollToTop = true;
 
@@ -1615,7 +1615,7 @@ const TextEditor::Palette & TextEditor::GetDarkPalette()
 {
 	const static Palette p = { {
 		0xff7f7f7f,	// Default
-		0xffd69c56,	// Keyword	
+		0xffd69c56,	// Keyword
 		0xff00ff00,	// Number
 		0xff7070e0,	// String
 		0xff70a0e0, // Char literal
@@ -1643,7 +1643,7 @@ const TextEditor::Palette & TextEditor::GetLightPalette()
 {
 	const static Palette p = { {
 		0xff7f7f7f,	// None
-		0xffff0c06,	// Keyword	
+		0xffff0c06,	// Keyword
 		0xff008000,	// Number
 		0xff2020a0,	// String
 		0xff304070, // Char literal
@@ -1671,7 +1671,7 @@ const TextEditor::Palette & TextEditor::GetRetroBluePalette()
 {
 	const static Palette p = { {
 		0xff00ffff,	// None
-		0xffffff00,	// Keyword	
+		0xffffff00,	// Keyword
 		0xff00ff00,	// Number
 		0xff808000,	// String
 		0xff808000, // Char literal
