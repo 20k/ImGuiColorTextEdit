@@ -794,7 +794,7 @@ void TextEditor::Render()
 		if (ImGui::IsMousePosValid())
 		{
 			auto id = GetWordAt(ScreenPosToCoordinates(ImGui::GetMousePos()));
-			if (!id.empty())
+			if (!id.empty() && ImGui::IsWindowHovered())
 			{
 				auto it = mLanguageDefinition.mIdentifiers.find(id);
 				if (it != mLanguageDefinition.mIdentifiers.end())
