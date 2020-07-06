@@ -241,40 +241,27 @@ void TextEditor::AddUndo(UndoRecord& aValue)
 	++mUndoIndex;
 }
 
-TextEditor::Coordinates TextEditor::ScreenPosToCoordinates(const ImVec2& aPosition) const
+TextEditor::Coordinates TextEditor::ScreenPosToCoordinates(const ImVec2& aPosition, bool exact) const
 {
 	ImVec2 origin = ImGui::GetCursorScreenPos();
 	ImVec2 local(aPosition.x - origin.x, aPosition.y - origin.y);
 
 	int lineNo = std::max(0, (int)floor(local.y / mCharAdvance.y));
 
-	/*
-		Compute columnCoord according to text size
-	*/
 	int columnCoord = 0;
-	float columnWidth = 0.0f;
-	std::string cumulatedString = "";
-	float cumulatedStringWidth[2] = { 0.0f, 0.0f }; //( [0] is the lastest, [1] is the previous. I use that trick to check where cursor is exactly (important for tabs)
 
-	if (lineNo >= 0 && lineNo < (int)mLines.size())
-	{
-		auto& line = mLines.at(lineNo);
+	float width = ImGui::CalcTextSize("A").x;
 
-		// First we find the hovered column coord.
-		while (mTextStart + cumulatedStringWidth[0] < local.x &&
-			(size_t)columnCoord < line.size())
-		{
-			cumulatedStringWidth[1] = cumulatedStringWidth[0];
-			cumulatedString += line[columnCoord].mChar;
-			cumulatedStringWidth[0] = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, cumulatedString.c_str(), nullptr, nullptr).x;
-			columnWidth = (cumulatedStringWidth[0] - cumulatedStringWidth[1]);
-			columnCoord++;
-		}
+	float column_fraction = std::max(0.f, (local.x - mTextStart) / width);
 
-		// Then we reduce by 1 column coord if cursor is on the left side of the hovered column.
-		if (mTextStart + cumulatedStringWidth[0] - columnWidth / 2.0f > local.x)
-			columnCoord = std::max(0, columnCoord - 1);
-	}
+	if(exact)
+    {
+        columnCoord = column_fraction;
+    }
+    else
+    {
+        columnCoord = round(column_fraction);
+    }
 
 	return SanitizeCoordinates(Coordinates(lineNo, columnCoord));
 }
@@ -576,12 +563,18 @@ void TextEditor::HandleMouseInputs()
 			{
 				if (!ctrl)
 				{
-					mState.mCursorPosition = mInteractiveStart = mInteractiveEnd = SanitizeCoordinates(ScreenPosToCoordinates(ImGui::GetMousePos()));
+					mState.mCursorPosition = mInteractiveStart = mInteractiveEnd = SanitizeCoordinates(ScreenPosToCoordinates(ImGui::GetMousePos(), true));
 					if (mSelectionMode == SelectionMode::Line)
 						mSelectionMode = SelectionMode::Normal;
 					else
 						mSelectionMode = SelectionMode::Word;
+
 					SetSelection(mInteractiveStart, mInteractiveEnd, mSelectionMode);
+
+					auto coord = FindWordStart(mState.mCursorPosition);
+
+					mState.mCursorPosition = mInteractiveStart = mInteractiveEnd = SanitizeCoordinates(coord);
+					//mState.mCursorPosition = mInteractiveStart = mInteractiveEnd = SanitizeCoordinates(ScreenPosToCoordinates(ImGui::GetMousePos()));
 				}
 
 				mLastClick = (float)ImGui::GetTime();

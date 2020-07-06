@@ -57,7 +57,7 @@ public:
 			, mEnabled(false)
 		{}
 	};
-	
+
 	struct Coordinates
 	{
 		int mLine, mColumn;
@@ -125,7 +125,7 @@ public:
 	typedef std::unordered_set<int> Breakpoints;
 	typedef std::array<ImU32, (unsigned)PaletteIndex::Max> Palette;
 	typedef char Char;
-	
+
 	struct Glyph
 	{
 		Char mChar;
@@ -134,7 +134,7 @@ public:
 		bool mMultiLineComment : 1;
 		bool mPreprocessor : 1;
 
-		Glyph(Char aChar, PaletteIndex aColorIndex) : mChar(aChar), mColorIndex(aColorIndex), 
+		Glyph(Char aChar, PaletteIndex aColorIndex) : mChar(aChar), mColorIndex(aColorIndex),
 			mComment(false), mMultiLineComment(false), mPreprocessor(false) {}
 	};
 
@@ -160,12 +160,12 @@ public:
 		TokenRegexStrings mTokenRegexStrings;
 
 		bool mCaseSensitive;
-		
+
 		LanguageDefinition()
 			: mPreprocChar('#'), mAutoIndentation(true), mTokenize(nullptr), mCaseSensitive(true)
 		{
 		}
-		
+
 		static const LanguageDefinition& CPlusPlus();
 		static const LanguageDefinition& HLSL();
 		static const LanguageDefinition& GLSL();
@@ -194,7 +194,7 @@ public:
 	std::vector<std::string> GetTextLines() const;
 	std::string GetSelectedText() const;
 	std::string GetCurrentLineText()const;
-	
+
 	int GetTotalLines() const { return (int)mLines.size(); }
 	bool IsOverwrite() const { return mOverwrite; }
 
@@ -257,14 +257,14 @@ private:
 
 		UndoRecord(
 			const std::string& aAdded,
-			const TextEditor::Coordinates aAddedStart, 
-			const TextEditor::Coordinates aAddedEnd, 
-			
-			const std::string& aRemoved, 
+			const TextEditor::Coordinates aAddedStart,
+			const TextEditor::Coordinates aAddedEnd,
+
+			const std::string& aRemoved,
 			const TextEditor::Coordinates aRemovedStart,
 			const TextEditor::Coordinates aRemovedEnd,
-			
-			TextEditor::EditorState& aBefore, 
+
+			TextEditor::EditorState& aBefore,
 			TextEditor::EditorState& aAfter);
 
 		void Undo(TextEditor* aEditor);
@@ -299,7 +299,7 @@ private:
 	void DeleteRange(const Coordinates& aStart, const Coordinates& aEnd);
 	int InsertTextAt(Coordinates& aWhere, const char* aValue);
 	void AddUndo(UndoRecord& aValue);
-	Coordinates ScreenPosToCoordinates(const ImVec2& aPosition) const;
+	Coordinates ScreenPosToCoordinates(const ImVec2& aPosition, bool exact = false) const;
 	Coordinates FindWordStart(const Coordinates& aFrom) const;
 	Coordinates FindWordEnd(const Coordinates& aFrom) const;
 	bool IsOnWordBoundary(const Coordinates& aAt) const;
@@ -322,7 +322,7 @@ private:
 	EditorState mState;
 	UndoBuffer mUndoBuffer;
 	int mUndoIndex;
-	
+
 	int mTabSize;
 	bool mOverwrite;
 	bool mReadOnly;
@@ -346,6 +346,6 @@ private:
 	ErrorMarkers mErrorMarkers;
 	ImVec2 mCharAdvance;
 	Coordinates mInteractiveStart, mInteractiveEnd;
-	
+
 	float mLastClick;
 };
