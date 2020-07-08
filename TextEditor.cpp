@@ -359,9 +359,10 @@ void TextEditor::RemoveLine(int aIndex)
 	ErrorMarkers etmp;
 	for (auto& i : mErrorMarkers)
 	{
-		ErrorMarkers::value_type e(i.first > aIndex ? i.first - 1 : i.first, i.second);
-		if (e.first - 1 == aIndex)
+		if (i.first == aIndex)
 			continue;
+
+		ErrorMarkers::value_type e(i.first > aIndex ? i.first - 1 : i.first, i.second);
 		etmp.insert(e);
 	}
 	mErrorMarkers = std::move(etmp);
