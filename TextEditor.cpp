@@ -329,9 +329,19 @@ void TextEditor::RemoveLine(int aStart, int aEnd)
 	ErrorMarkers etmp;
 	for (auto& i : mErrorMarkers)
 	{
-		ErrorMarkers::value_type e(i.first >= aStart ? i.first - 1 : i.first, i.second);
-		if (e.first >= aStart && e.first <= aEnd)
-			continue;
+	    if(i.first >= aStart && i.first < aEnd)
+            continue;
+
+        int num = aEnd - aStart;
+
+        int ypos = i.first;
+
+        if(ypos >= aEnd)
+        {
+            ypos -= num;
+        }
+
+		ErrorMarkers::value_type e(ypos, i.second);
 		etmp.insert(e);
 	}
 	mErrorMarkers = std::move(etmp);
@@ -346,6 +356,7 @@ void TextEditor::RemoveLine(int aStart, int aEnd)
 	mBreakpoints = std::move(btmp);
 
 	mLines.erase(mLines.begin() + aStart, mLines.begin() + aEnd);
+
 	assert(!mLines.empty());
 
 	mTextChanged = true;
