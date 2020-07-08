@@ -356,11 +356,32 @@ void TextEditor::RemoveLine(int aIndex)
 	assert(!mReadOnly);
 	assert(mLines.size() > 1);
 
+	auto coord = GetActualCursorCoordinates();
+
 	ErrorMarkers etmp;
 	for (auto& i : mErrorMarkers)
 	{
-		if (i.first == aIndex)
-			continue;
+	    ///if we delete from the 0th character of this line
+	    ///or the 0th character of the *next* line, preserve
+        if(i.first == coord.mLine)
+        {
+            if(aIndex == coord.mLine)
+            {
+                if(coord.mColumn == 0)
+                {
+                    ErrorMarkers::value_type e(i.first, i.second);
+                    etmp.insert(e);
+                    continue;
+                }
+
+                ///deleting anywhere else removes the breakpoint
+                continue;
+            }
+            else
+            {
+                continue;
+            }
+        }
 
 		ErrorMarkers::value_type e(i.first > aIndex ? i.first - 1 : i.first, i.second);
 		etmp.insert(e);
@@ -848,6 +869,16 @@ void TextEditor::Render()
 		}
 	}
 
+	ErrorMarkers etmp;
+    for (auto& i : mErrorMarkers)
+    {
+        if(mLines[i.first - 1].size() == 0)
+            continue;
+
+        etmp.insert(ErrorMarkers::value_type(i.first, i.second));
+    }
+
+    mErrorMarkers = std::move(etmp);
 
 	ImGui::Dummy(ImVec2((longest + 2), mLines.size() * mCharAdvance.y));
 
@@ -1521,6 +1552,18 @@ void TextEditor::BackSpace()
 			--mState.mCursorPosition.mColumn;
 			if (mState.mCursorPosition.mColumn < (int)line.size())
 				line.erase(line.begin() + mState.mCursorPosition.mColumn);
+
+
+            ErrorMarkers etmp;
+			for (auto& i : mErrorMarkers)
+            {
+                if((i.first-1) == mState.mCursorPosition.mLine)
+                    continue;
+
+				etmp.insert(ErrorMarkers::value_type(i.first, i.second));
+            }
+
+			mErrorMarkers = std::move(etmp);
 		}
 
 		mTextChanged = true;
