@@ -386,11 +386,48 @@ TextEditor::Line& TextEditor::InsertLine(int aIndex)
 {
 	assert(!mReadOnly);
 
+	auto coord = GetActualCursorCoordinates();
+
 	auto& result = *mLines.insert(mLines.begin() + aIndex, Line());
 
 	ErrorMarkers etmp;
 	for (auto& i : mErrorMarkers)
-		etmp.insert(ErrorMarkers::value_type(i.first >= aIndex ? i.first + 1 : i.first, i.second));
+    {
+        if(i.first == coord.mLine + 1)
+        {
+            if(aIndex == coord.mLine + 1)
+            {
+                auto& line = mLines[coord.mLine];
+
+                if(coord.mColumn == ((int)line.size()))
+                {
+                    ErrorMarkers::value_type next(i.first, i.second);
+                    etmp.insert(next);
+                    continue;
+                }
+
+                else if(coord.mColumn == 0)
+                {
+                    ErrorMarkers::value_type next(i.first + 1, i.second);
+                    etmp.insert(next);
+                    continue;
+                }
+
+                else
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                continue;
+            }
+        }
+
+        ErrorMarkers::value_type e(i.first >= aIndex ? i.first + 1 : i.first, i.second);
+
+		etmp.insert(e);
+    }
 	mErrorMarkers = std::move(etmp);
 
 	Breakpoints btmp;
