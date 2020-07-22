@@ -863,7 +863,9 @@ void TextEditor::Render()
 				if (it != mLanguageDefinition.mIdentifiers.end())
 				{
 					ImGui::BeginTooltip();
+					ImGui::PushTextWrapPos(400);
 					ImGui::TextUnformatted(it->second.mDeclaration.c_str());
+					ImGui::PopTextWrapPos();
 					ImGui::EndTooltip();
 				}
 				else
