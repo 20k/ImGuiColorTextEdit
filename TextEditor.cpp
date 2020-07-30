@@ -250,9 +250,47 @@ TextEditor::Coordinates TextEditor::ScreenPosToCoordinates(const ImVec2& aPositi
 
 	int columnCoord = 0;
 
-	float width = ImGui::CalcTextSize("A").x;
+	///monospaced no tabs
+	///code below this emulates this line
+	/*float width = ImGui::CalcTextSize("A").x;
+	float column_fraction = std::max(0.f, (local.x - mTextStart) / width);*/
 
-	float column_fraction = std::max(0.f, (local.x - mTextStart) / width);
+	local.x -= mTextStart;
+
+	if(local.x < 0)
+        local.x = 0;
+
+	float column_fraction = 0;
+	float total_width = 0;
+
+	const Line& l = mLines[lineNo];
+
+    for(int i=0; i < (int)l.size(); i++)
+    {
+        std::array<char, 2> as_str = {l[i].mChar, 0};
+
+        int width = ImGui::CalcTextSize(&as_str[0]).x;
+
+        if(width == 0)
+        {
+            column_fraction += 1;
+            continue;
+        }
+
+        if(total_width + width >= local.x)
+        {
+            float add_column = (local.x - total_width) / width;
+
+            add_column = std::max(add_column, 0.f);
+
+            column_fraction += add_column;
+            break;
+        }
+
+        column_fraction += 1;
+        total_width += width;
+    }
+
 
 	if(exact)
     {
