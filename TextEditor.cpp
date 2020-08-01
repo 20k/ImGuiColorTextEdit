@@ -800,11 +800,11 @@ void TextEditor::Render()
 			// Draw breakpoints
 			auto start = ImVec2(lineStartScreenPos.x + scrollX, lineStartScreenPos.y);
 
-			if (mBreakpoints.count(lineNo + 1) != 0)
+			/*if (mBreakpoints.count(lineNo + 1) != 0)
 			{
 				auto end = ImVec2(lineStartScreenPos.x + contentSize.x + 2.0f * scrollX, lineStartScreenPos.y + mCharAdvance.y);
 				drawList->AddRectFilled(start, end, mPalette[(int)PaletteIndex::Breakpoint]);
-			}
+			}*/
 
 			if (mHighlightLines.count(lineNo + 1) != 0)
             {
@@ -834,7 +834,7 @@ void TextEditor::Render()
 			}
 
 			// Draw line number (right aligned)
-			snprintf(buf, 16, "%d ", lineNo + 1);
+			snprintf(buf, 16, "%d", lineNo + 1);
 
 			auto lineNoWidth = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf, nullptr, nullptr).x;
 			drawList->AddText(ImVec2(lineStartScreenPos.x + mTextStart - lineNoWidth - breakpoint_width - breakpoint_pad, lineStartScreenPos.y), mPalette[(int)PaletteIndex::LineNumber], buf);
