@@ -186,6 +186,7 @@ public:
 
 	void SetErrorMarkers(const ErrorMarkers& aMarkers) { mErrorMarkers = aMarkers; }
 	void SetBreakpoints(const Breakpoints& aMarkers) { mBreakpoints = aMarkers; }
+	std::unordered_set<int> GetBreakpoints() { return mBreakpoints; }
 	void SetHighlightLines(const std::map<int, ImVec4>& highlight_lines) { mHighlightLines = highlight_lines; }
 
 	void Render(const char* aTitle, const ImVec2& aSize = ImVec2(), bool aBorder = false);
