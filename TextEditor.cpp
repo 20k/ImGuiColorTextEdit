@@ -753,10 +753,13 @@ void TextEditor::Render()
 	auto globalLineMax = (int)mLines.size();
 	auto lineMax = std::max(0, std::min((int)mLines.size() - 1, lineNo + (int)floor((scrollY + contentSize.y) / mCharAdvance.y)));
 
+	int breakpoint_width = 10;
+	int breakpoint_pad = 2;
+
 	// Deduce mTextStart by evaluating mLines size (global lineMax) plus two spaces as text width
 	char buf[16];
 	snprintf(buf, 16, " %d ", globalLineMax);
-	mTextStart = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf, nullptr, nullptr).x + mLeftMargin;
+	mTextStart = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf, nullptr, nullptr).x + mLeftMargin + breakpoint_width;
 
 	if (!mLines.empty())
 	{
@@ -831,10 +834,31 @@ void TextEditor::Render()
 			}
 
 			// Draw line number (right aligned)
-			snprintf(buf, 16, "%d  ", lineNo + 1);
+			snprintf(buf, 16, "%d ", lineNo + 1);
 
 			auto lineNoWidth = ImGui::GetFont()->CalcTextSizeA(ImGui::GetFontSize(), FLT_MAX, -1.0f, buf, nullptr, nullptr).x;
-			drawList->AddText(ImVec2(lineStartScreenPos.x + mTextStart - lineNoWidth, lineStartScreenPos.y), mPalette[(int)PaletteIndex::LineNumber], buf);
+			drawList->AddText(ImVec2(lineStartScreenPos.x + mTextStart - lineNoWidth - breakpoint_width - breakpoint_pad, lineStartScreenPos.y), mPalette[(int)PaletteIndex::LineNumber], buf);
+
+			if(mBreakpoints.find(lineNo + 1) != mBreakpoints.end())
+            {
+                drawList->AddText(ImVec2(lineStartScreenPos.x + mTextStart - breakpoint_width/2 - breakpoint_pad - 4, lineStartScreenPos.y), IM_COL32(150, 40, 40, 255), "B");
+            }
+
+            if(ImGui::IsWindowHovered() &&
+               ImGui::IsMouseHoveringRect(ImVec2(lineStartScreenPos.x + mTextStart - breakpoint_width - breakpoint_pad - 4, lineStartScreenPos.y), ImVec2(lineStartScreenPos.x + mTextStart, lineStartScreenPos.y + ImGui::CalcTextSize(" ").y)))
+            {
+                if(ImGui::IsMouseClicked(0))
+                {
+                    if(mBreakpoints.find(lineNo + 1) == mBreakpoints.end())
+                    {
+                        mBreakpoints.insert(lineNo + 1);
+                    }
+                    else
+                    {
+                        mBreakpoints.erase(lineNo + 1);
+                    }
+                }
+            }
 
 			// Highlight the current line (where the cursor is)
 			if (mState.mCursorPosition.mLine == lineNo)
