@@ -806,7 +806,7 @@ void TextEditor::Render()
 			if (mHighlightLines.count(lineNo + 1) != 0)
             {
                 auto end = ImVec2(lineStartScreenPos.x + contentSize.x + 2.0f * scrollX, lineStartScreenPos.y + mCharAdvance.y);
-				drawList->AddRectFilled(start, end, ImGui::ColorConvertFloat4ToU32(mHighlightLines[lineNo]));
+				drawList->AddRectFilled(start, end, ImGui::ColorConvertFloat4ToU32(mHighlightLines[lineNo + 1]));
             }
 
 			// Draw error markers
