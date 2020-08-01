@@ -248,6 +248,11 @@ TextEditor::Coordinates TextEditor::ScreenPosToCoordinates(const ImVec2& aPositi
 
 	int lineNo = std::max(0, (int)floor(local.y / mCharAdvance.y));
 
+	if(lineNo >= mLines.size())
+    {
+        return SanitizeCoordinates(Coordinates(lineNo, 0));
+    }
+
 	int columnCoord = 0;
 
 	///monospaced no tabs
