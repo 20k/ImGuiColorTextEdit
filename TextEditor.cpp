@@ -803,6 +803,12 @@ void TextEditor::Render()
 				drawList->AddRectFilled(start, end, mPalette[(int)PaletteIndex::Breakpoint]);
 			}
 
+			if (mHighlightLines.count(lineNo + 1) != 0)
+            {
+                auto end = ImVec2(lineStartScreenPos.x + contentSize.x + 2.0f * scrollX, lineStartScreenPos.y + mCharAdvance.y);
+				drawList->AddRectFilled(start, end, ImGui::ColorConvertFloat4ToU32(mHighlightLines[lineNo]));
+            }
+
 			// Draw error markers
 			auto errorIt = mErrorMarkers.find(lineNo + 1);
 			if (errorIt != mErrorMarkers.end())
