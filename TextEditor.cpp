@@ -847,6 +847,10 @@ void TextEditor::Render()
             if(ImGui::IsWindowHovered() &&
                ImGui::IsMouseHoveringRect(ImVec2(lineStartScreenPos.x + mTextStart - breakpoint_width - breakpoint_pad - 4, lineStartScreenPos.y), ImVec2(lineStartScreenPos.x + mTextStart, lineStartScreenPos.y + ImGui::CalcTextSize(" ").y)))
             {
+                ImGui::BeginTooltip();
+                ImGui::TextUnformatted("Toggle Breakpoint");
+                ImGui::EndTooltip();
+
                 if(ImGui::IsMouseClicked(0))
                 {
                     if(mBreakpoints.find(lineNo + 1) == mBreakpoints.end())
