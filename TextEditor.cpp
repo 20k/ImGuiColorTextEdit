@@ -929,8 +929,10 @@ void TextEditor::Render()
 		// Draw a tooltip on known identifiers/preprocessor symbols
 		if (ImGui::IsMousePosValid())
 		{
+		    float x_origin = ImGui::GetCursorScreenPos().x;
+
 			auto id = GetWordAt(ScreenPosToCoordinates(ImGui::GetMousePos()));
-			if (!id.empty() && ImGui::IsWindowHovered())
+			if (!id.empty() && ImGui::IsWindowHovered() && ImGui::GetMousePos().x >= x_origin + mTextStart)
 			{
 				auto it = mLanguageDefinition.mIdentifiers.find(id);
 				if (it != mLanguageDefinition.mIdentifiers.end())
