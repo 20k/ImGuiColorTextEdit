@@ -392,9 +392,19 @@ void TextEditor::RemoveLine(int aStart, int aEnd)
 	Breakpoints btmp;
 	for (auto i : mBreakpoints)
 	{
-		if (i >= aStart && i <= aEnd)
-			continue;
-		btmp.insert(i >= aStart ? i - 1 : i);
+        if(i >= aStart && i < aEnd)
+            continue;
+
+        int num = aEnd - aStart;
+
+        int ypos = i;
+
+        if(ypos >= aEnd)
+        {
+            ypos -= num;
+        }
+
+		btmp.insert(ypos);
 	}
 	mBreakpoints = std::move(btmp);
 
@@ -425,16 +435,12 @@ void TextEditor::RemoveLine(int aIndex)
                 {
                     ErrorMarkers::value_type e(i.first, i.second);
                     etmp.insert(e);
-                    continue;
                 }
 
                 ///deleting anywhere else removes the breakpoint
-                continue;
             }
-            else
-            {
-                continue;
-            }
+
+            continue;
         }
 
 		ErrorMarkers::value_type e(i.first > aIndex ? i.first - 1 : i.first, i.second);
@@ -445,9 +451,22 @@ void TextEditor::RemoveLine(int aIndex)
 	Breakpoints btmp;
 	for (auto i : mBreakpoints)
 	{
-		if (i == aIndex)
-			continue;
-		btmp.insert(i >= aIndex ? i - 1 : i);
+        if(i == coord.mLine)
+        {
+            if(aIndex == coord.mLine)
+            {
+                if(coord.mColumn == 0)
+                {
+                    btmp.insert(i);
+                }
+
+                ///deleting anywhere else removes the breakpoint
+            }
+
+            continue;
+        }
+
+        btmp.insert(i > aIndex ? i - 1 : i);
 	}
 	mBreakpoints = std::move(btmp);
 
@@ -478,25 +497,16 @@ TextEditor::Line& TextEditor::InsertLine(int aIndex)
                 {
                     ErrorMarkers::value_type next(i.first, i.second);
                     etmp.insert(next);
-                    continue;
                 }
 
                 else if(coord.mColumn == 0)
                 {
                     ErrorMarkers::value_type next(i.first + 1, i.second);
                     etmp.insert(next);
-                    continue;
                 }
+            }
 
-                else
-                {
-                    continue;
-                }
-            }
-            else
-            {
-                continue;
-            }
+            continue;
         }
 
         ErrorMarkers::value_type e(i.first >= aIndex ? i.first + 1 : i.first, i.second);
@@ -506,8 +516,33 @@ TextEditor::Line& TextEditor::InsertLine(int aIndex)
 	mErrorMarkers = std::move(etmp);
 
 	Breakpoints btmp;
-	for (auto i : mBreakpoints)
-		btmp.insert(i >= aIndex ? i + 1 : i);
+
+    for (auto& i : mBreakpoints)
+    {
+        if(i == coord.mLine + 1)
+        {
+            if(aIndex == coord.mLine + 1)
+            {
+                auto& line = mLines[coord.mLine];
+
+                if(coord.mColumn == ((int)line.size()))
+                {
+                    btmp.insert(i);
+                }
+
+                else if(coord.mColumn == 0)
+                {
+                    btmp.insert(i + 1);
+                }
+            }
+
+            continue;
+        }
+
+
+        btmp.insert(i >= aIndex ? i + 1 : i);
+    }
+
 	mBreakpoints = std::move(btmp);
 
 	return result;
@@ -971,6 +1006,18 @@ void TextEditor::Render()
     }
 
     mErrorMarkers = std::move(etmp);
+
+    Breakpoints btmp;
+
+    for (auto& i : mBreakpoints)
+    {
+        if(mLines[i - 1].size() == 0)
+            continue;
+
+        btmp.insert(i);
+    }
+
+    mBreakpoints = std::move(btmp);
 
 	ImGui::Dummy(ImVec2((longest + 2), mLines.size() * mCharAdvance.y));
 
@@ -1629,6 +1676,11 @@ void TextEditor::BackSpace()
 				etmp.insert(ErrorMarkers::value_type(i.first - 1 == mState.mCursorPosition.mLine ? i.first - 1 : i.first, i.second));
 			mErrorMarkers = std::move(etmp);
 
+			Breakpoints btmp;
+			for (auto& i : mBreakpoints)
+				btmp.insert(i - 1 == mState.mCursorPosition.mLine ? i - 1 : i);
+			mBreakpoints = std::move(btmp);
+
 			RemoveLine(mState.mCursorPosition.mLine);
 			--mState.mCursorPosition.mLine;
 			mState.mCursorPosition.mColumn = prevSize;
@@ -1656,6 +1708,16 @@ void TextEditor::BackSpace()
             }
 
 			mErrorMarkers = std::move(etmp);
+
+			Breakpoints btmp;
+			for (auto& i : mBreakpoints)
+            {
+                if((i-1) == mState.mCursorPosition.mLine)
+                    continue;
+
+				btmp.insert(i);
+            }
+			mBreakpoints = std::move(btmp);
 		}
 
 		mTextChanged = true;
